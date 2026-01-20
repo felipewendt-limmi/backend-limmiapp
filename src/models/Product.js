@@ -24,7 +24,7 @@ module.exports = (sequelize) => {
             allowNull: true,
         },
         price: {
-            type: DataTypes.STRING,
+            type: DataTypes.FLOAT,
             allowNull: true,
         },
         unit: {
@@ -37,7 +37,7 @@ module.exports = (sequelize) => {
         },
         // Backward compatibility (optional, can remove later)
         image: {
-            type: DataTypes.STRING,
+            type: DataTypes.TEXT,
             allowNull: true,
         },
         isActive: {

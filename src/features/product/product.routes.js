@@ -10,6 +10,7 @@ router.post('/clients/:clientId/products/bulk-import', productController.bulkImp
 // Product utilities
 router.get('/products/global-search', productController.globalSearch);
 router.get('/products/categories', productController.getCategories);
+router.get('/categories/global', productController.getCategories); // Alias for Base LIMMI requirement
 
 // Get products by client slug (public)
 router.get('/clients/:clientSlug/products', productController.getByClientSlug);
