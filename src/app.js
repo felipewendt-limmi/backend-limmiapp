@@ -30,7 +30,7 @@ app.use(cors({
     credentials: true // Note: credentials true usually conflicts with origin *, but for some setups it's ignored or needed. 
     // Actually, allowing * with credentials is spec-invalid, but let's try just * first without credentials or standard permissive.
 }));
-app.options('*', cors()); // Enable pre-flight for all routes
+app.options(/(.*)/, cors()); // Enable pre-flight for all routes (Express 5 fix)
 
 // Global Logger
 app.use((req, res, next) => {
