@@ -21,6 +21,55 @@ class ProductController {
         }
     }
 
+    async bulkImport(req, res) {
+        try {
+            const { clientId } = req.params;
+            const products = req.body; // Expecting Array
+
+            if (!Array.isArray(products)) {
+                return res.status(400).json({ error: "O corpo da requisição deve ser um array de produtos." });
+            }
+
+            const results = {
+                total: products.length,
+                success: 0,
+                failed: 0,
+                errors: []
+            };
+
+            for (const item of products) {
+                try {
+                    const productData = {
+                        name: item.name,
+                        description: item.description,
+                        price: item.price || "0,00",
+                        category: item.category || "Geral",
+                        image: item.image,
+                        nutrition: item.nutrition || [],
+                        benefits: item.benefits || [],
+                        tags: item.tags || [],
+                        helpsWith: item.helpsWith || []
+                    };
+
+                    if (!productData.name) throw new Error("Produto sem nome");
+
+                    // Reusing createProduct service which handles slug generation
+                    await productService.createProduct(clientId, productData);
+
+                    results.success++;
+                } catch (err) {
+                    results.failed++;
+                    results.errors.push({ name: item.name, error: err.message });
+                }
+            }
+
+            res.json(results);
+        } catch (error) {
+            console.error("Bulk Import Error:", error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
     async getByClientSlug(req, res) {
         try {
             const products = await productService.findByClientSlug(req.params.clientSlug);
