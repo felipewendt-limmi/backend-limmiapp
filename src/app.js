@@ -1,5 +1,6 @@
 const express = require('express');
 const http = require('http');
+const bcrypt = require('bcryptjs');
 const { Server } = require('socket.io');
 const cors = require('./config/cors');
 const db = require('./models');
@@ -55,10 +56,15 @@ db.sequelize.sync({ alter: true }).then(async () => {
             });
             console.log('Default Admin User Created: admin@admin.com / admin');
         } else {
-            // Force update password to ensure it's correct (in case of previous hashing issues)
-            adminUser.password = 'admin';
-            await adminUser.save();
-            console.log('Admin user password reset to defaults: admin');
+            // Force update password MANUALLY to ensure it's correct (bypassing loose hooks)
+            const hashedPassword = await bcrypt.hash('admin', 10);
+
+            // Direct update query to avoid model instance issues
+            await db.User.update(
+                { password: hashedPassword },
+                { where: { email: adminEmail } }
+            );
+            console.log('Admin user password MANUALLY reset to defaults: admin');
         }
     } catch (error) {
         console.error('Error seeding admin user:', error);
