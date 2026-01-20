@@ -2,7 +2,7 @@ const express = require('express');
 const http = require('http');
 const bcrypt = require('bcryptjs');
 const { Server } = require('socket.io');
-const cors = require('./config/cors');
+const cors = require('cors'); // Use direct cors package
 const db = require('./models');
 const routes = require('./routes');
 require('dotenv').config();
@@ -21,12 +21,26 @@ const io = new Server(server, {
 });
 
 app.use(express.json());
-app.use(cors);
+
+// HARDCODED CORS FOR DEBUGGING
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    credentials: true // Note: credentials true usually conflicts with origin *, but for some setups it's ignored or needed. 
+    // Actually, allowing * with credentials is spec-invalid, but let's try just * first without credentials or standard permissive.
+}));
+app.options('*', cors()); // Enable pre-flight for all routes
+
+// Global Logger
 app.use((req, res, next) => {
     console.log(`[GLOBAL REQUEST] ${req.method} ${req.url}`);
-    console.log('[GLOBAL BODY]', JSON.stringify(req.body));
     next();
 });
+
+// HEALTH CHECK ROUTES (Critical for debugging)
+app.get('/', (req, res) => res.send('API ONLINE 🚀'));
+app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date() }));
 
 // Serve Static Files (Uploads)
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
