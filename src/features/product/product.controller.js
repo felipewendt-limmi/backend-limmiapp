@@ -70,55 +70,48 @@ class ProductController {
         }
     }
 
-            res.json(results);
-} catch (error) {
-    console.error("Bulk Import Error:", error);
-    res.status(500).json({ error: error.message });
-}
-    }
-
     async globalSearch(req, res) {
-    try {
-        const { query } = req.query;
-        if (!query) return res.json([]);
-        const products = await productService.findGlobalTemplate(query);
-        res.json(products);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+        try {
+            const { query } = req.query;
+            if (!query) return res.json([]);
+            const products = await productService.findGlobalTemplate(query);
+            res.json(products);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     }
-}
 
     async getCategories(req, res) {
-    try {
-        const categories = await productService.getAllCategories();
-        res.json(categories);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+        try {
+            const categories = await productService.getAllCategories();
+            res.json(categories);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     }
-}
 
     async getByClientSlug(req, res) {
-    try {
-        const products = await productService.findByClientSlug(req.params.clientSlug);
-        res.json(products);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+        try {
+            const products = await productService.findByClientSlug(req.params.clientSlug);
+            res.json(products);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
     }
-}
 
     async update(req, res) {
-    try {
-        const product = await productService.update(req.params.id, req.body);
+        try {
+            const product = await productService.update(req.params.id, req.body);
 
-        if (req.io) {
-            req.io.emit('product:updated', { action: 'update', product });
+            if (req.io) {
+                req.io.emit('product:updated', { action: 'update', product });
+            }
+
+            res.json(product);
+        } catch (error) {
+            res.status(400).json({ error: error.message });
         }
-
-        res.json(product);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
     }
-}
 }
 
 module.exports = new ProductController();
