@@ -22,6 +22,11 @@ const io = new Server(server, {
 
 app.use(express.json());
 app.use(cors);
+app.use((req, res, next) => {
+    console.log(`[GLOBAL REQUEST] ${req.method} ${req.url}`);
+    console.log('[GLOBAL BODY]', JSON.stringify(req.body));
+    next();
+});
 
 // Serve Static Files (Uploads)
 app.use('/uploads', express.static(path.join(__dirname, '../public/uploads')));
