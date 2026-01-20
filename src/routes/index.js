@@ -8,5 +8,6 @@ const authRoutes = require('../features/auth/auth.routes');
 router.use('/clients', clientRoutes);
 router.use('/products', productRoutes);
 router.use('/auth', authRoutes);
+router.use('/stats', require('../features/stats/stats.routes'));
 
 module.exports = router;
