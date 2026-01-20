@@ -37,6 +37,15 @@ class ClientController {
             res.status(400).json({ error: error.message });
         }
     }
+
+    async bulkImport(req, res) {
+        try {
+            const results = await clientService.bulkCreateWithProducts(req.body);
+            res.status(201).json(results);
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
 }
 
 module.exports = new ClientController();

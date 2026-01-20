@@ -4,6 +4,7 @@ const clientController = require('./client.controller');
 const productController = require('../product/product.controller');
 
 router.post('/', clientController.create);
+router.post('/bulk-import', clientController.bulkImport); // Bulk Import
 router.get('/', clientController.getAll);
 router.get('/:slug', clientController.getBySlug);
 router.put('/:id', clientController.update);
