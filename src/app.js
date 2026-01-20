@@ -37,7 +37,7 @@ app.use('/api', routes);
 app.use('/api/upload', uploadRoutes);
 
 // Database Sync & Start Server
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 3000;
 
 db.sequelize.sync({ alter: true }).then(async () => {
     console.log('Database connected and synced');
