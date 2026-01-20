@@ -55,7 +55,10 @@ db.sequelize.sync({ alter: true }).then(async () => {
             });
             console.log('Default Admin User Created: admin@admin.com / admin');
         } else {
-            console.log('Admin user already exists');
+            // Force update password to ensure it's correct (in case of previous hashing issues)
+            adminUser.password = 'admin';
+            await adminUser.save();
+            console.log('Admin user password reset to defaults: admin');
         }
     } catch (error) {
         console.error('Error seeding admin user:', error);
