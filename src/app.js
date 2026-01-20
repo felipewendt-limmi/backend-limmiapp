@@ -45,8 +45,15 @@ app.use('/api/upload', uploadRoutes);
 // Database Sync & Start Server
 const PORT = process.env.PORT || 3000;
 
+// Start Server IMMEDIATELY to ensure logging works and port is bound
+server.listen(PORT, '0.0.0.0', () => {
+    console.log(`[SYSTEM] Server running on port ${PORT}`);
+    console.log(`[SYSTEM] Environment: ${process.env.NODE_ENV}`);
+});
+
+// Attempt Database Connection
 db.sequelize.sync({ alter: true }).then(async () => {
-    console.log('Database connected and synced');
+    console.log('[DB] Database connected and synced');
 
     // Seed Admin User
     try {
@@ -56,30 +63,25 @@ db.sequelize.sync({ alter: true }).then(async () => {
         if (!adminUser) {
             await db.User.create({
                 email: adminEmail,
-                password: 'admin', // Will be hashed by hook
+                password: 'admin',
                 role: 'superadmin'
             });
-            console.log('Default Admin User Created: admin@admin.com / admin');
+            console.log('[DB] Default Admin User Created: admin@admin.com / admin');
         } else {
-            // Force update password MANUALLY to ensure it's correct (bypassing loose hooks)
+            // Force update password MANUALLY
             const hashedPassword = await bcrypt.hash('admin', 10);
-
-            // Direct update query to avoid model instance issues
             await db.User.update(
                 { password: hashedPassword },
                 { where: { email: adminEmail } }
             );
-            console.log('Admin user password MANUALLY reset to defaults: admin');
+            console.log('[DB] Admin user password MANUALLY reset to defaults: admin');
         }
     } catch (error) {
-        console.error('Error seeding admin user:', error);
+        console.error('[DB] Error seeding admin user:', error);
     }
-
-    server.listen(PORT, () => {
-        console.log(`Server running on port ${PORT}`);
-    });
 }).catch(err => {
-    console.error('Database connection failed:', err);
+    console.error('[DB] CRITICAL DATABASE CONNECTION ERROR:', err);
+    console.error('[DB] Verify your DB_HOST, DB_USER, DB_PASS environment variables.');
 });
 
 // Socket Events
