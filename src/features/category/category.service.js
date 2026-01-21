@@ -63,11 +63,12 @@ class CategoryService {
 
             if (!exists) {
                 console.log(`[CategoryService] Creating missing category: ${catName}`);
-                // Try to infer emoji if possible, otherwise default
+                // Try to infer emoji
+                const emoji = this.inferEmoji(catName);
                 await Category.create({
                     clientId,
                     name: catName,
-                    emoji: '📦'
+                    emoji: emoji
                 });
                 createdCount++;
             }
@@ -75,6 +76,23 @@ class CategoryService {
         console.log(`[CategoryService] Created ${createdCount} new categories.`);
 
         return { message: 'Sync complete', created: createdCount };
+    }
+
+    inferEmoji(name) {
+        const lower = name.toLowerCase();
+        if (lower.includes('semente') || lower.includes('seed')) return '🌱';
+        if (lower.includes('grão') || lower.includes('grain') || lower.includes('trigo') || lower.includes('arroz')) return '🌾';
+        if (lower.includes('farinha') || lower.includes('flour')) return '🥡';
+        if (lower.includes('chá') || lower.includes('tea')) return '🍵';
+        if (lower.includes('tempero') || lower.includes('spice') || lower.includes('pimenta')) return '🌶️';
+        if (lower.includes('fruta') || lower.includes('fruit') || lower.includes('damasco') || lower.includes('uva')) return '🍑';
+        if (lower.includes('castanha') || lower.includes('nozes') || lower.includes('nut') || lower.includes('amendoa')) return '🌰';
+        if (lower.includes('óleo') || lower.includes('azeite') || lower.includes('oil')) return '🫗';
+        if (lower.includes('suplemento') || lower.includes('whey') || lower.includes('proteina')) return '💪';
+        if (lower.includes('doce') || lower.includes('chocolate')) return '🍫';
+        if (lower.includes('snack') || lower.includes('biscoito')) return '🍪';
+        if (lower.includes('encap') || lower.includes('capsula')) return '💊';
+        return '📦';
     }
 }
 
