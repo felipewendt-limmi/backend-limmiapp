@@ -10,9 +10,7 @@ class ClientService {
 
     async findAll() {
         return await Client.findAll({
-            where: {
-                slug: { [Op.ne]: 'global-catalog' } // Hide master store from list
-            },
+            where: {},
             include: ['products'],
             order: [['createdAt', 'DESC']]
         });

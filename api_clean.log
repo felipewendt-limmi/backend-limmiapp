@@ -21,3 +21,14 @@ Body: {
 [Global Sync] Created Global Test Product in Global Catalog
 [GLOBAL REQUEST] GET /api/products/global-search?query=Global
 [GLOBAL REQUEST] GET /api/products/categories
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] POST /api/clients/bulk-import
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] POST /api/clients/bulk-import
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] GET /api/clients
