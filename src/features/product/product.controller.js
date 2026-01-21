@@ -1,4 +1,5 @@
 const productService = require('./product.service');
+const categoryService = require('../category/category.service');
 
 class ProductController {
     async create(req, res) {
@@ -61,6 +62,13 @@ class ProductController {
                     results.failed++;
                     results.errors.push({ name: item.name, error: err.message });
                 }
+            }
+
+            // Auto-sync categories
+            try {
+                await categoryService.syncFromProducts(clientId);
+            } catch (syncErr) {
+                console.error("Auto-sync categories failed:", syncErr);
             }
 
             res.json(results);

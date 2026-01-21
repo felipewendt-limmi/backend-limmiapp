@@ -1,4 +1,4 @@
-const { Category, Product, Client } = require('../../models');
+const { Category, Product, Client, sequelize } = require('../../models');
 
 class CategoryService {
     async create(clientId, data) {
@@ -6,9 +6,27 @@ class CategoryService {
     }
 
     async findByClient(clientId) {
-        return await Category.findAll({
+        const categories = await Category.findAll({
             where: { clientId },
-            order: [['name', 'ASC']]
+            order: [['name', 'ASC']],
+            raw: true
+        });
+
+        // Get counts
+        const counts = await Product.findAll({
+            where: { clientId },
+            attributes: ['category', [sequelize.fn('COUNT', sequelize.col('id')), 'count']],
+            group: ['category'],
+            raw: true
+        });
+
+        // Merge
+        return categories.map(cat => {
+            const countObj = counts.find(c => c.category === cat.name);
+            return {
+                ...cat,
+                productsCount: countObj ? parseInt(countObj.count, 10) : 0
+            };
         });
     }
 
