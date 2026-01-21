@@ -8,8 +8,8 @@ const productController = require('./product.controller');
 router.post('/clients/:clientId/products', productController.create);
 router.post('/clients/:clientId/products/bulk-import', productController.bulkImport);
 // Product utilities
-router.get('/products/global-search', productController.globalSearch);
-router.get('/products/categories', productController.getCategories);
+router.get('/global-search', productController.globalSearch);
+router.get('/categories', productController.getCategories);
 router.get('/categories/global', productController.getCategories); // Alias for Base LIMMI requirement
 
 // Get products by client slug (public)
