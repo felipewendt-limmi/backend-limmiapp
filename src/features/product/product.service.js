@@ -1,7 +1,7 @@
 const { Product, Client } = require('../../models');
 const slugify = require('slugify');
 const { Op } = require('sequelize');
-const sequelize = require('../../config/database').sequelize;
+const sequelize = require('../../models').sequelize;
 
 class ProductService {
     async createProduct(clientId, data) {
