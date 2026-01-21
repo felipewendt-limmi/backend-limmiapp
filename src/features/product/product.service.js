@@ -97,7 +97,7 @@ class ProductService {
                 unique.push(p);
             }
         }
-        return unique.slice(0, 10);
+        return unique.slice(0, 50);
     }
 
     async getAllCategories() {
