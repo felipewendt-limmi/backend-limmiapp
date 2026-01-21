@@ -57,7 +57,7 @@ app.use('/api', routes);
 app.use('/api/upload', uploadRoutes);
 
 // Database Sync & Start Server
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 
 // Start Server IMMEDIATELY to ensure logging works and port is bound
 server.listen(PORT, '0.0.0.0', () => {

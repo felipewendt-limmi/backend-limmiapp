@@ -1,0 +1,23 @@
+[dotenv@17.2.3] injecting env (8) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🛠️  run anywhere with `dotenvx run -- yourcommand`
+[SYSTEM] Server running on port 3001
+[SYSTEM] Environment: undefined
+[GLOBAL REQUEST] GET /api/health
+[DB] Database connected and synced
+[DB] Default Admin User Created: admin@admin.com / admin
+[GLOBAL REQUEST] GET /api/health
+[GLOBAL REQUEST] POST /api/clients
+[GLOBAL REQUEST] POST /api/clients/4e5e1f51-97ef-4812-8bce-4e8d233637b3/products
+POST /products hit
+Params: [Object: null prototype] {
+  clientId: '4e5e1f51-97ef-4812-8bce-4e8d233637b3'
+}
+Body: {
+  name: 'Global Test Product',
+  price: 10.5,
+  category: 'TestCat',
+  description: 'A test product for global search'
+}
+[Global Sync] Created Global Test Product in Global Catalog
+[GLOBAL REQUEST] GET /api/products/global-search?query=Global
+[GLOBAL REQUEST] GET /api/products/categories
