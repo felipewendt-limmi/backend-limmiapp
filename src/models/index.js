@@ -11,10 +11,14 @@ db.sequelize = sequelize;
 // Import Models
 db.Client = require('./Client')(sequelize);
 db.Product = require('./Product')(sequelize);
+db.Category = require('./Category')(sequelize);
 db.User = require('./User')(sequelize);
 
 // Associations
 db.Client.hasMany(db.Product, { foreignKey: 'clientId', as: 'products' });
 db.Product.belongsTo(db.Client, { foreignKey: 'clientId', as: 'client' });
+
+db.Client.hasMany(db.Category, { foreignKey: 'clientId', as: 'categories' });
+db.Category.belongsTo(db.Client, { foreignKey: 'clientId', as: 'client' });
 
 module.exports = db;
