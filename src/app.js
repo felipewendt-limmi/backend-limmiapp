@@ -66,37 +66,43 @@ server.listen(PORT, '0.0.0.0', () => {
 });
 
 // Attempt Database Connection
-db.sequelize.sync({ alter: true }).then(async () => {
-    console.log('[DB] Database connected and synced');
+// PRE-SYNC MIGRATION FIX: Handle Price Column Type Change
+db.sequelize.query('ALTER TABLE "Products" ALTER COLUMN "price" TYPE FLOAT USING price::double precision;')
+    .catch(err => { /* Ignore error if table/column doesn't exist yet */ })
+    .then(() => {
+        return db.sequelize.sync({ alter: true });
+    })
+    .then(async () => {
+        console.log('[DB] Database connected and synced');
 
-    // Seed Admin User
-    try {
-        const adminEmail = 'admin@admin.com';
-        const adminUser = await db.User.findOne({ where: { email: adminEmail } });
+        // Seed Admin User
+        try {
+            const adminEmail = 'admin@admin.com';
+            const adminUser = await db.User.findOne({ where: { email: adminEmail } });
 
-        if (!adminUser) {
-            await db.User.create({
-                email: adminEmail,
-                password: 'admin',
-                role: 'superadmin'
-            });
-            console.log('[DB] Default Admin User Created: admin@admin.com / admin');
-        } else {
-            // Force update password MANUALLY
-            const hashedPassword = await bcrypt.hash('admin', 10);
-            await db.User.update(
-                { password: hashedPassword },
-                { where: { email: adminEmail } }
-            );
-            console.log('[DB] Admin user password MANUALLY reset to defaults: admin');
+            if (!adminUser) {
+                await db.User.create({
+                    email: adminEmail,
+                    password: 'admin',
+                    role: 'superadmin'
+                });
+                console.log('[DB] Default Admin User Created: admin@admin.com / admin');
+            } else {
+                // Force update password MANUALLY
+                const hashedPassword = await bcrypt.hash('admin', 10);
+                await db.User.update(
+                    { password: hashedPassword },
+                    { where: { email: adminEmail } }
+                );
+                console.log('[DB] Admin user password MANUALLY reset to defaults: admin');
+            }
+        } catch (error) {
+            console.error('[DB] Error seeding admin user:', error);
         }
-    } catch (error) {
-        console.error('[DB] Error seeding admin user:', error);
-    }
-}).catch(err => {
-    console.error('[DB] CRITICAL DATABASE CONNECTION ERROR:', err);
-    console.error('[DB] Verify your DB_HOST, DB_USER, DB_PASS environment variables.');
-});
+    }).catch(err => {
+        console.error('[DB] CRITICAL DATABASE CONNECTION ERROR:', err);
+        console.error('[DB] Verify your DB_HOST, DB_USER, DB_PASS environment variables.');
+    });
 
 // Socket Events
 io.on('connection', (socket) => {
