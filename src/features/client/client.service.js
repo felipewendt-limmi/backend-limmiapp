@@ -97,6 +97,9 @@ class ClientService {
                                 }
                             }
                         }
+                        // Also sync categories for Global Catalog
+                        console.log(`[ClientService] Triggering Global Catalog Category Sync`);
+                        await categoryService.syncFromProducts(globalClient.id);
                     } catch (err) {
                         console.error("Error bulk syncing to global:", err);
                     }
