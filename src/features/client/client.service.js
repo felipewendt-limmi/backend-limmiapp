@@ -1,5 +1,6 @@
 const { Client } = require('../../models');
 const slugify = require('slugify');
+const { Op } = require('sequelize');
 
 class ClientService {
     async createClient(data) {
@@ -9,11 +10,26 @@ class ClientService {
 
     async findAll() {
         return await Client.findAll({
-            include: ['products'] // Ensure products are fetched for the dashboard
+            where: {
+                slug: { [Op.ne]: 'global-catalog' } // Hide master store from list
+            },
+            include: ['products'],
+            order: [['createdAt', 'DESC']]
         });
     }
 
     async findBySlug(slug) {
+        if (slug === 'global-catalog') {
+            const [client] = await Client.findOrCreate({
+                where: { slug: 'global-catalog' },
+                defaults: {
+                    name: 'Catálogo Global',
+                    description: 'Loja mestre para gerenciamento de produtos globais.',
+                    isActive: true // Must be active to be accessed, but hidden in list
+                }
+            });
+            return client;
+        }
         return await Client.findOne({ where: { slug } });
     }
 
@@ -54,7 +70,32 @@ class ClientService {
                         isActive: true
                     }));
 
-                    await Product.bulkCreate(productsToCreate);
+                    const createdProducts = await Product.bulkCreate(productsToCreate);
+
+                    // Sync to Global Catalog
+                    // We can reuse the ProductService logic or duplicate minimal logic here. 
+                    // To keep it clean, let's try to lazy load ProductService and use the helper? 
+                    // Or just do it manually to avoid circular deps risk since we are already in ClientService.
+                    try {
+                        const [globalClient] = await Client.findOrCreate({ where: { slug: 'global-catalog' }, defaults: { name: 'Catálogo Global', isActive: true } });
+
+                        if (client.id !== globalClient.id) {
+                            for (const p of createdProducts) {
+                                const exists = await Product.findOne({ where: { clientId: globalClient.id, slug: p.slug } });
+                                if (!exists) {
+                                    await Product.create({
+                                        ...p.dataValues, // Use dataValues from Sequelize instance
+                                        id: undefined, // Let DB generate new ID
+                                        clientId: globalClient.id,
+                                        createdAt: undefined,
+                                        updatedAt: undefined
+                                    });
+                                }
+                            }
+                        }
+                    } catch (err) {
+                        console.error("Error bulk syncing to global:", err);
+                    }
                 }
 
                 results.push({ name: client.name, status: 'success' });

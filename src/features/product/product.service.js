@@ -7,13 +7,68 @@ class ProductService {
     async createProduct(clientId, data) {
         const slug = slugify(data.name, { lower: true, strict: true });
 
-        // Ensure slug uniqueness within client scope if needed, keeping simple for now
-
-        return await Product.create({
+        // 1. Create the product for the specific client
+        const product = await Product.create({
             ...data,
             clientId,
             slug
         });
+
+        // 2. Sync to Global Catalog (if this isn't already the global catalog)
+        // We do this asynchronously/background to not block the main request if desired, 
+        // but for data integrity, let's await it or catch errors silently.
+        try {
+            await this.syncToGlobalCatalog(product);
+        } catch (err) {
+            console.error("Error syncing to global catalog:", err.message);
+        }
+
+        return product;
+    }
+
+    async syncToGlobalCatalog(sourceProduct) {
+        // 1. Get Global Catalog Client ID
+        const [globalClient] = await Client.findOrCreate({
+            where: { slug: 'global-catalog' },
+            defaults: {
+                name: 'Catálogo Global',
+                description: 'Loja mestre para gerenciamento de produtos globais.',
+                isActive: true
+            }
+        });
+
+        // Prevent infinite loop if we are creating FOR the global catalog
+        if (sourceProduct.clientId === globalClient.id) return;
+
+        // 2. Check if product already exists in Global Catalog (by slug or name)
+        // Global catalog should be the master source, so we only add if missing? 
+        // Or do we update? User said "whenever create... create for this store".
+        // Let's ensure it exists.
+        const existing = await Product.findOne({
+            where: {
+                clientId: globalClient.id,
+                slug: sourceProduct.slug
+            }
+        });
+
+        if (!existing) {
+            await Product.create({
+                name: sourceProduct.name,
+                description: sourceProduct.description,
+                price: sourceProduct.price,
+                category: sourceProduct.category,
+                image: sourceProduct.image,
+                nutrition: sourceProduct.nutrition,
+                benefits: sourceProduct.benefits,
+                tags: sourceProduct.tags,
+                helpsWith: sourceProduct.helpsWith,
+                emoji: sourceProduct.emoji,
+                slug: sourceProduct.slug,
+                clientId: globalClient.id,
+                isActive: true
+            });
+            console.log(`[Global Sync] Created ${sourceProduct.name} in Global Catalog`);
+        }
     }
 
     async findByClientSlug(clientSlug) {
