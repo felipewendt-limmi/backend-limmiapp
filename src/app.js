@@ -70,8 +70,8 @@ server.listen(PORT, '0.0.0.0', () => {
 db.sequelize.query('ALTER TABLE "Products" ALTER COLUMN "price" TYPE FLOAT USING price::double precision;')
     .catch(err => { /* Ignore error if table/column doesn't exist yet */ })
     .then(() => {
-        // FORCE TRUE to reset DB as requested by user
-        return db.sequelize.sync({ force: true });
+        // Sync Database (force: false to preserve data)
+        return db.sequelize.sync({ force: false });
     })
     .then(async () => {
         console.log('[DB] Database connected and synced');
