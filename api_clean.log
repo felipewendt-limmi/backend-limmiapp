@@ -32,3 +32,6 @@ Body: {
 [GLOBAL REQUEST] GET /api/clients
 [GLOBAL REQUEST] GET /api/clients
 [GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] GET /api/clients

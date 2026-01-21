@@ -3,9 +3,9 @@ const router = express.Router();
 const categoryController = require('./category.controller');
 
 // Client-scoped routes
-router.post('/:clientId/categories', categoryController.create);
-router.get('/:clientId/categories', categoryController.getByClient);
-router.post('/:clientId/categories/sync', categoryController.syncFromProducts);
+router.post('/clients/:clientId/categories', categoryController.create);
+router.get('/clients/:clientId/categories', categoryController.getByClient);
+router.post('/clients/:clientId/categories/sync', categoryController.syncFromProducts);
 
 // Resource routes
 router.put('/categories/:id', categoryController.update);

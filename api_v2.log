@@ -1,0 +1,90 @@
+[dotenv@17.2.3] injecting env (8) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[SYSTEM] Server running on port 3001
+[SYSTEM] Environment: undefined
+[GLOBAL REQUEST] POST /api/clients/bulk-import
+Error bulk syncing to global: Error
+    at Query.run (/Users/patricksiqueira/99novo/api/node_modules/sequelize/lib/dialects/postgres/query.js:50:25)
+    at /Users/patricksiqueira/99novo/api/node_modules/sequelize/lib/sequelize.js:315:28
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async PostgresQueryInterface.select (/Users/patricksiqueira/99novo/api/node_modules/sequelize/lib/dialects/abstract/query-interface.js:407:12)
+    at async Client.findAll (/Users/patricksiqueira/99novo/api/node_modules/sequelize/lib/model.js:1140:21)
+    at async Client.findOne (/Users/patricksiqueira/99novo/api/node_modules/sequelize/lib/model.js:1240:12)
+    at async Client.findOrCreate (/Users/patricksiqueira/99novo/api/node_modules/sequelize/lib/model.js:1411:21)
+    at async ClientService.bulkCreateWithProducts (/Users/patricksiqueira/99novo/api/src/features/client/client.service.js:78:48)
+    at async bulkImport (/Users/patricksiqueira/99novo/api/src/features/client/client.controller.js:43:29) {
+  name: 'SequelizeDatabaseError',
+  parent: error: relation "Clients" does not exist
+      at parseErrorMessage (/Users/patricksiqueira/99novo/api/node_modules/pg-protocol/dist/parser.js:305:11)
+      at Parser.handlePacket (/Users/patricksiqueira/99novo/api/node_modules/pg-protocol/dist/parser.js:143:27)
+      at Parser.parse (/Users/patricksiqueira/99novo/api/node_modules/pg-protocol/dist/parser.js:37:38)
+      at Socket.<anonymous> (/Users/patricksiqueira/99novo/api/node_modules/pg-protocol/dist/index.js:11:42)
+      at Socket.emit (node:events:507:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+      at Readable.push (node:internal/streams/readable:390:5)
+      at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+    length: 107,
+    severity: 'ERROR',
+    code: '42P01',
+    detail: undefined,
+    hint: undefined,
+    position: '123',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '1449',
+    routine: 'parserOpenTable',
+    sql: `SELECT "id", "name", "description", "slug", "logo", "coverImage", "themeColor", "isActive", "createdAt", "updatedAt" FROM "Clients" AS "Client" WHERE "Client"."slug" = 'global-catalog';`,
+    parameters: undefined
+  },
+  original: error: relation "Clients" does not exist
+      at parseErrorMessage (/Users/patricksiqueira/99novo/api/node_modules/pg-protocol/dist/parser.js:305:11)
+      at Parser.handlePacket (/Users/patricksiqueira/99novo/api/node_modules/pg-protocol/dist/parser.js:143:27)
+      at Parser.parse (/Users/patricksiqueira/99novo/api/node_modules/pg-protocol/dist/parser.js:37:38)
+      at Socket.<anonymous> (/Users/patricksiqueira/99novo/api/node_modules/pg-protocol/dist/index.js:11:42)
+      at Socket.emit (node:events:507:28)
+      at addChunk (node:internal/streams/readable:559:12)
+      at readableAddChunkPushByteMode (node:internal/streams/readable:510:3)
+      at Readable.push (node:internal/streams/readable:390:5)
+      at TCP.onStreamRead (node:internal/stream_base_commons:189:23) {
+    length: 107,
+    severity: 'ERROR',
+    code: '42P01',
+    detail: undefined,
+    hint: undefined,
+    position: '123',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'parse_relation.c',
+    line: '1449',
+    routine: 'parserOpenTable',
+    sql: `SELECT "id", "name", "description", "slug", "logo", "coverImage", "themeColor", "isActive", "createdAt", "updatedAt" FROM "Clients" AS "Client" WHERE "Client"."slug" = 'global-catalog';`,
+    parameters: undefined
+  },
+  sql: `SELECT "id", "name", "description", "slug", "logo", "coverImage", "themeColor", "isActive", "createdAt", "updatedAt" FROM "Clients" AS "Client" WHERE "Client"."slug" = 'global-catalog';`,
+  parameters: {}
+}
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] POST /api/clients/bulk-import
+[DB] Database connected and synced
+[DB] Default Admin User Created: admin@admin.com / admin
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] GET /api/clients/2f8d03a8-b431-4901-abe3-6d725a232e54/categories
+[GLOBAL REQUEST] GET /api/clients/2f8d03a8-b431-4901-abe3-6d725a232e54/categories
+[GLOBAL REQUEST] GET /api/health
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] GET /api/clients/2f8d03a8-b431-4901-abe3-6d725a232e54/categories
+[GLOBAL REQUEST] GET /api/health

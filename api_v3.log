@@ -1,0 +1,13 @@
+[dotenv@17.2.3] injecting env (8) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+[dotenv@17.2.3] injecting env (0) from .env -- tip: ⚙️  override existing env vars with { override: true }
+[SYSTEM] Server running on port 3001
+[SYSTEM] Environment: undefined
+[GLOBAL REQUEST] GET /api/health
+[DB] Database connected and synced
+[DB] Default Admin User Created: admin@admin.com / admin
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] POST /api/clients/bulk-import
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] GET /api/clients/b6192a08-3011-46c0-8bbf-fb9ee2189915/categories
+[GLOBAL REQUEST] GET /api/clients/b6192a08-3011-46c0-8bbf-fb9ee2189915/categories
+[GLOBAL REQUEST] POST /api/clients/b6192a08-3011-46c0-8bbf-fb9ee2189915/categories/sync

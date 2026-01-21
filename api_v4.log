@@ -1,0 +1,7 @@
+[dotenv@17.2.3] injecting env (8) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.2.3] injecting env (0) from .env -- tip: 🔐 prevent building .env in docker: https://dotenvx.com/prebuild
+[SYSTEM] Server running on port 3001
+[SYSTEM] Environment: undefined
+[DB] Database connected and synced
+[DB] Default Admin User Created: admin@admin.com / admin
+[GLOBAL REQUEST] GET /api/health
