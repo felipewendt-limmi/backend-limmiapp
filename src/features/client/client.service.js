@@ -1,6 +1,7 @@
 const { Client } = require('../../models');
 const slugify = require('slugify');
 const { Op } = require('sequelize');
+const categoryService = require('../category/category.service'); // Import CategoryService
 
 class ClientService {
     async createClient(data) {
@@ -38,6 +39,7 @@ class ClientService {
     }
 
     async bulkCreateWithProducts(clientsData) {
+        console.log(`[ClientService] Bulk Import started with ${clientsData.length} items.`);
         const results = [];
         for (const data of clientsData) {
             try {
@@ -55,6 +57,9 @@ class ClientService {
                         description: data.description || "",
                         isActive: true
                     });
+                    console.log(`[ClientService] Created client: ${client.name} (${client.id})`);
+                } else {
+                    console.log(`[ClientService] Client already exists: ${client.name}`);
                 }
 
                 // 2. Create Products
@@ -69,6 +74,7 @@ class ClientService {
                     }));
 
                     const createdProducts = await Product.bulkCreate(productsToCreate);
+                    console.log(`[ClientService] Created ${createdProducts.length} products for ${client.name}`);
 
                     // Sync to Global Catalog
                     // We can reuse the ProductService logic or duplicate minimal logic here. 
@@ -93,6 +99,14 @@ class ClientService {
                         }
                     } catch (err) {
                         console.error("Error bulk syncing to global:", err);
+                    }
+
+                    // 3. Auto-Sync Categories
+                    try {
+                        console.log(`[ClientService] Triggering Category Sync for ${client.name}`);
+                        await categoryService.syncFromProducts(client.id);
+                    } catch (catErr) {
+                        console.error(`[ClientService] Error syncing categories for ${client.name}:`, catErr);
                     }
                 }
 
