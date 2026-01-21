@@ -63,8 +63,27 @@ class CategoryService {
 
             if (!exists) {
                 console.log(`[CategoryService] Creating missing category: ${catName}`);
-                // Try to infer emoji
-                const emoji = this.inferEmoji(catName);
+
+                let emoji = null;
+
+                // 1. Try to get from Global Catalog first (Master Source)
+                try {
+                    const globalClient = await Client.findOne({ where: { slug: 'global-catalog' } });
+                    if (globalClient) {
+                        const globalCat = await Category.findOne({
+                            where: { clientId: globalClient.id, name: catName }
+                        });
+                        if (globalCat) emoji = globalCat.emoji;
+                    }
+                } catch (e) {
+                    console.error("Error fetching global emoji:", e);
+                }
+
+                // 2. If not in global, infer from name
+                if (!emoji) {
+                    emoji = this.inferEmoji(catName);
+                }
+
                 await Category.create({
                     clientId,
                     name: catName,

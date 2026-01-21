@@ -5,3 +5,4 @@
 [DB] Database connected and synced
 [DB] Default Admin User Created: admin@admin.com / admin
 [GLOBAL REQUEST] GET /api/health
+[GLOBAL REQUEST] GET /api/clients
