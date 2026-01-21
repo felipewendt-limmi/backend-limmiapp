@@ -44,12 +44,16 @@ class CategoryService {
 
     // Utility: Scan products and creaet Categories for missing ones
     async syncFromProducts(clientId) {
+        console.log(`[CategoryService] Syncing for ClientID: ${clientId}`);
         const products = await Product.findAll({
             where: { clientId },
             attributes: ['category']
         });
+        console.log(`[CategoryService] Found ${products.length} products associated with this client.`);
 
         const distinctCategories = [...new Set(products.map(p => p.category).filter(c => c))];
+        console.log(`[CategoryService] Distinct categories found: ${distinctCategories.join(', ')}`);
+
         let createdCount = 0;
 
         for (const catName of distinctCategories) {
@@ -58,6 +62,7 @@ class CategoryService {
             });
 
             if (!exists) {
+                console.log(`[CategoryService] Creating missing category: ${catName}`);
                 // Try to infer emoji if possible, otherwise default
                 await Category.create({
                     clientId,
@@ -67,6 +72,7 @@ class CategoryService {
                 createdCount++;
             }
         }
+        console.log(`[CategoryService] Created ${createdCount} new categories.`);
 
         return { message: 'Sync complete', created: createdCount };
     }

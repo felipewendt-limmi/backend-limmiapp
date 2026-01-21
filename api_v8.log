@@ -5,3 +5,11 @@
 [DB] Database connected and synced
 [DB] Default Admin User Created: admin@admin.com / admin
 [GLOBAL REQUEST] GET /api/health
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] POST /api/clients/bulk-import
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] GET /api/clients/367212cd-88a3-42a3-9879-7b8df9d29a30/categories
+[GLOBAL REQUEST] GET /api/clients/367212cd-88a3-42a3-9879-7b8df9d29a30/categories
+[GLOBAL REQUEST] GET /api/clients
+[GLOBAL REQUEST] GET /api/clients/367212cd-88a3-42a3-9879-7b8df9d29a30/categories

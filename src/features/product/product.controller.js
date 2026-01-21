@@ -25,6 +25,7 @@ class ProductController {
     async bulkImport(req, res) {
         try {
             const { clientId } = req.params;
+            console.log(`[ProductController] Bulk Import started for ClientID: ${clientId}`);
             const products = req.body; // Expecting Array
 
             if (!Array.isArray(products)) {
