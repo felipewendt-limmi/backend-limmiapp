@@ -73,8 +73,8 @@ class ProductController {
     async globalSearch(req, res) {
         try {
             const { query } = req.query;
-            if (!query) return res.json([]);
-            const products = await productService.findGlobalTemplate(query);
+            // if (!query) return res.json([]); // Allow empty query for initial list
+            const products = await productService.findGlobalTemplate(query || "");
             res.json(products);
         } catch (error) {
             res.status(500).json({ error: error.message });

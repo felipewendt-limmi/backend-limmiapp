@@ -76,12 +76,15 @@ class ProductService {
 
     async findGlobalTemplate(query) {
         // Simple search for templates. We pick the most recent one for each name.
+        const whereClause = {};
+        if (query) {
+            whereClause.name = { [Op.iLike]: `%${query}%` };
+        }
+
         const products = await Product.findAll({
-            where: {
-                name: { [Op.iLike]: `%${query}%` }
-            },
+            where: whereClause,
             order: [['createdAt', 'DESC']],
-            limit: 20
+            limit: 50 // Increased limit for catalogue view
         });
 
         // Deduplicate by name in JS to ensure unique results for the user
