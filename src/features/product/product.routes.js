@@ -18,7 +18,8 @@ router.get('/categories/global', productController.getCategories); // Alias for 
 router.get('/clients/:clientSlug/products', productController.getByClientSlug);
 
 // Update product
-router.put('/products/:id', productController.update);
-router.post('/products/:id/interaction', productController.trackInteraction);
+router.put('/:id', productController.update);
+router.post('/:id/interaction', productController.trackInteraction);
+router.get('/:id/interactions', productController.getInteractions);
 
 module.exports = router;
