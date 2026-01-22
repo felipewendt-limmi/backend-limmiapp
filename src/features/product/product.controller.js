@@ -137,8 +137,13 @@ class ProductController {
             const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
             const userAgent = req.headers['user-agent'];
 
+            console.log(`[TRACK] Interaction attempt: Product ID: ${id}, Type: ${type}, IP: ${ipAddress}`);
+
             const product = await productService.findById(id);
-            if (!product) return res.status(404).json({ error: 'Product not found' });
+            if (!product) {
+                console.log(`[TRACK] Product not found for ID: ${id}`);
+                return res.status(404).json({ error: 'Product not found' });
+            }
 
             // Create Interaction Log
             const { ProductInteraction } = require('../../models');
@@ -159,9 +164,10 @@ class ProductController {
             }
 
             await product.save();
+            console.log(`[TRACK] Interaction saved: Product ID: ${id}, New View Count: ${product.views}`);
             res.json({ success: true, views: product.views, favorites: product.favoritesCount });
         } catch (error) {
-            console.error("Tracking Error:", error);
+            console.error("[TRACK] Tracking Error:", error);
             res.status(500).json({ error: error.message });
         }
     }
