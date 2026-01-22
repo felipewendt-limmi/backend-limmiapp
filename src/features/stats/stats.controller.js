@@ -16,8 +16,8 @@ exports.getDashboardStats = async (req, res) => {
         // 2. Global Aggregations
         let totalViews = 0;
         let totalFavorites = 0;
-        let totalProducts = 0;
-        let totalActiveProducts = 0;
+        let totalUniqueProducts = 0;
+        let totalActiveUniqueProducts = 0;
 
         const detailedClients = clientsRaw.map(client => {
             const products = client.products || [];
@@ -32,11 +32,15 @@ exports.getDashboardStats = async (req, res) => {
             // Distinct Categories
             const categories = new Set(products.map(p => p.category).filter(Boolean));
 
-            // Add to globals
+            // Add to globals (Views & Faves)
             totalViews += clientViews;
             totalFavorites += clientFavorites;
-            totalProducts += productCount;
-            totalActiveProducts += activeProductCount;
+
+            // If this is the global catalog, use it as the source of truth for total products
+            if (client.slug === 'global-catalog') {
+                totalUniqueProducts = productCount;
+                totalActiveUniqueProducts = activeProductCount;
+            }
 
             return {
                 id: client.id,
@@ -53,17 +57,25 @@ exports.getDashboardStats = async (req, res) => {
             };
         });
 
-        // 3. Client Counts
+        // 3. Sort Clients: Forcing 'global-catalog' to be FIRST
+        detailedClients.sort((a, b) => {
+            if (a.slug === 'global-catalog') return -1;
+            if (b.slug === 'global-catalog') return 1;
+            // Otherwise maintain creation order (desc)
+            return new Date(b.createdAt) - new Date(a.createdAt);
+        });
+
+        // 4. Client Counts
         const totalClients = clientsRaw.length;
         const activeClients = clientsRaw.filter(c => c.isActive).length;
 
-        // 4. Mock Financials (still mock for now as we don't have real orders yet)
+        // 5. Mock Financials (still mock for now as we don't have real orders yet)
         const mockRevenue = 12450.00;
 
         res.json({
             global: {
                 clients: { total: totalClients, active: activeClients },
-                products: { total: totalProducts, active: totalActiveProducts },
+                products: { total: totalUniqueProducts, active: totalActiveUniqueProducts },
                 engagement: { views: totalViews, favorites: totalFavorites }
             },
             sales: {
