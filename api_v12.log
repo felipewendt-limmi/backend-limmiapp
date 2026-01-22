@@ -5,3 +5,4 @@
 [GLOBAL REQUEST] GET /api/health
 [DB] Database connected and synced
 [DB] Default Admin User Created: admin@admin.com / admin
+[GLOBAL REQUEST] GET /api/clients/2f8d03a8-b431-4901-abe3-6d725a232e54/categories

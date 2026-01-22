@@ -7,6 +7,7 @@ const productController = require('./product.controller');
 // Create product for a specific client
 // Create product for a specific client
 router.post('/clients/:clientId/products', productController.create);
+
 router.post('/clients/:clientId/products/bulk-import', productController.bulkImport);
 // Product utilities
 router.get('/global-search', productController.globalSearch);
@@ -18,5 +19,6 @@ router.get('/clients/:clientSlug/products', productController.getByClientSlug);
 
 // Update product
 router.put('/products/:id', productController.update);
+router.post('/products/:id/interaction', productController.trackInteraction);
 
 module.exports = router;

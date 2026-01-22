@@ -9,6 +9,7 @@ router.use('/clients', clientRoutes);
 router.use('/products', productRoutes);
 router.use('/auth', authRoutes);
 router.use('/stats', require('../features/stats/stats.routes'));
+router.use('/files', require('../features/file/file.routes')); // New File Routes
 router.use('/', require('../features/category/category.routes')); // Mount at root for flexible paths like /clients/:id/categories
 
 module.exports = router;

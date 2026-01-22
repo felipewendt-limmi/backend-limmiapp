@@ -86,6 +86,10 @@ class ProductService {
         });
     }
 
+    async findById(id) {
+        return await Product.findByPk(id);
+    }
+
     async update(id, data) {
         const product = await Product.findByPk(id);
         if (!product) throw new Error('Product not found');

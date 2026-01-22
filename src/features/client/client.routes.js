@@ -8,7 +8,8 @@ router.post('/bulk-import', clientController.bulkImport); // Bulk Import
 router.get('/', clientController.getAll);
 router.get('/:slug', clientController.getBySlug);
 router.put('/:id', clientController.update);
-router.post('/:clientId/products/bulk-import', productController.bulkImport); // Add Bulk Import Route
+router.post('/:id/visit', clientController.trackVisit); // Tracking
+router.post('/bulk-import', clientController.bulkImport);
 router.post('/:clientId/products', productController.create);
 
 module.exports = router;

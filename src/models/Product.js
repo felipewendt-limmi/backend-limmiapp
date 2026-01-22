@@ -48,6 +48,19 @@ module.exports = (sequelize) => {
             type: DataTypes.BOOLEAN,
             defaultValue: true,
         },
+        // Analytics Fields
+        views: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
+        favoritesCount: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
+        nutritionInteractions: {
+            type: DataTypes.INTEGER,
+            defaultValue: 0,
+        },
         // Flexible JSONB Fields
         nutrition: {
             type: DataTypes.JSONB,

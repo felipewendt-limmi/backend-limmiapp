@@ -46,6 +46,20 @@ class ClientController {
             res.status(500).json({ error: error.message });
         }
     }
+
+    async trackVisit(req, res) {
+        try {
+            const { id } = req.params;
+            const client = await clientService.findById(id);
+            if (!client) return res.status(404).json({ error: 'Client not found' });
+
+            client.views = (client.views || 0) + 1;
+            await client.save();
+            res.json({ success: true, views: client.views });
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
 }
 
 module.exports = new ClientController();

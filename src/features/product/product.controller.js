@@ -1,5 +1,6 @@
 const productService = require('./product.service');
 const categoryService = require('../category/category.service');
+const clientService = require('../client/client.service');
 
 class ProductController {
     async create(req, res) {
@@ -9,6 +10,13 @@ class ProductController {
             console.log("Body:", req.body);
             const { clientId } = req.params;
             const product = await productService.createProduct(clientId, req.body);
+
+            // Auto-sync categories for single product creation
+            try {
+                await categoryService.syncFromProducts(clientId);
+            } catch (syncErr) {
+                console.error("Auto-sync categories failed:", syncErr);
+            }
 
             // Emit Socket Event
             if (req.io) {
@@ -119,6 +127,30 @@ class ProductController {
             res.json(product);
         } catch (error) {
             res.status(400).json({ error: error.message });
+        }
+    }
+
+    async trackInteraction(req, res) {
+        try {
+            const { id } = req.params;
+            const { type } = req.body; // 'view' | 'favorite' | 'nutrition'
+
+            const product = await productService.findById(id);
+            if (!product) return res.status(404).json({ error: 'Product not found' });
+
+            if (type === 'view') {
+                product.views = (product.views || 0) + 1;
+            } else if (type === 'favorite') {
+                product.favoritesCount = (product.favoritesCount || 0) + 1;
+            } else if (type === 'nutrition') {
+                product.nutritionInteractions = (product.nutritionInteractions || 0) + 1;
+            }
+
+            await product.save();
+            res.json({ success: true, views: product.views, favorites: product.favoritesCount });
+        } catch (error) {
+            console.error("Tracking Error:", error);
+            res.status(500).json({ error: error.message });
         }
     }
 }

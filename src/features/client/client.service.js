@@ -32,6 +32,10 @@ class ClientService {
         return await Client.findOne({ where: { slug } });
     }
 
+    async findById(id) {
+        return await Client.findByPk(id);
+    }
+
     async update(id, data) {
         const client = await Client.findByPk(id);
         if (!client) throw new Error('Client not found');
