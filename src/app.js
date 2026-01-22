@@ -66,12 +66,34 @@ server.listen(PORT, '0.0.0.0', () => {
 });
 
 // Attempt Database Connection
-// PRE-SYNC MIGRATION FIX: Handle Price Column Type Change
-db.sequelize.query('ALTER TABLE "Products" ALTER COLUMN "price" TYPE FLOAT USING price::double precision;')
-    .catch(err => { /* Ignore error if table/column doesn't exist yet */ })
+// PRE-SYNC MIGRATION FIX: Handle column changes and additions
+const runMigrations = async () => {
+    const migrations = [
+        // Price column type fix
+        'ALTER TABLE "Products" ALTER COLUMN "price" TYPE FLOAT USING price::double precision;',
+        // Analytics columns for Clients
+        'ALTER TABLE "Clients" ADD COLUMN IF NOT EXISTS "views" INTEGER DEFAULT 0;',
+        // Analytics columns for Products
+        'ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "views" INTEGER DEFAULT 0;',
+        'ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "favoritesCount" INTEGER DEFAULT 0;',
+        'ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "nutritionInteractions" INTEGER DEFAULT 0;',
+    ];
+
+    for (const sql of migrations) {
+        try {
+            await db.sequelize.query(sql);
+            console.log(`[Migration] OK: ${sql.substring(0, 50)}...`);
+        } catch (err) {
+            // Ignore errors (column already exists, table doesn't exist yet, etc.)
+            console.log(`[Migration] Skipped: ${sql.substring(0, 50)}...`);
+        }
+    }
+};
+
+runMigrations()
     .then(() => {
-        // Sync Database (force: false to preserve data)
-        return db.sequelize.sync({ force: false });
+        // Sync Database (force: false to preserve data, alter: true to add new columns)
+        return db.sequelize.sync({ force: false, alter: true });
     })
     .then(async () => {
         console.log('[DB] Database connected and synced');
