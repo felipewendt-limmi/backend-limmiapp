@@ -134,10 +134,22 @@ class ProductController {
         try {
             const { id } = req.params;
             const { type } = req.body; // 'view' | 'favorite' | 'nutrition'
+            const ipAddress = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+            const userAgent = req.headers['user-agent'];
 
             const product = await productService.findById(id);
             if (!product) return res.status(404).json({ error: 'Product not found' });
 
+            // Create Interaction Log
+            const { ProductInteraction } = require('../../models');
+            await ProductInteraction.create({
+                productId: id,
+                type,
+                ipAddress,
+                userAgent
+            });
+
+            // Increment Counters (for compatibility with dashboard)
             if (type === 'view') {
                 product.views = (product.views || 0) + 1;
             } else if (type === 'favorite') {
@@ -150,6 +162,24 @@ class ProductController {
             res.json({ success: true, views: product.views, favorites: product.favoritesCount });
         } catch (error) {
             console.error("Tracking Error:", error);
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async getInteractions(req, res) {
+        try {
+            const { id } = req.params;
+            const { ProductInteraction } = require('../../models');
+
+            const interactions = await ProductInteraction.findAll({
+                where: { productId: id },
+                order: [['createdAt', 'DESC']],
+                limit: 50 // Limit to recent 50 for now
+            });
+
+            res.json(interactions);
+        } catch (error) {
+            console.error("Get Interactions Error:", error);
             res.status(500).json({ error: error.message });
         }
     }
