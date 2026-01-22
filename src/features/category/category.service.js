@@ -33,7 +33,27 @@ class CategoryService {
     async update(id, data) {
         const category = await Category.findByPk(id);
         if (!category) throw new Error('Category not found');
-        return await category.update(data);
+
+        const updated = await category.update(data);
+
+        // Propagation: If global category emoji changes, update all clients
+        try {
+            const globalClient = await Client.findOne({ where: { slug: 'global-catalog' } });
+            if (globalClient && category.clientId === globalClient.id && data.emoji) {
+                console.log(`[Global Propagation] Category "${category.name}" emoji updated to ${data.emoji}. Propagating...`);
+
+                await Category.update({ emoji: data.emoji }, {
+                    where: {
+                        name: category.name,
+                        clientId: { [Op.ne]: globalClient.id }
+                    }
+                });
+            }
+        } catch (err) {
+            console.error("[Global Propagation] Error propagating category update:", err.message);
+        }
+
+        return updated;
     }
 
     async delete(id) {

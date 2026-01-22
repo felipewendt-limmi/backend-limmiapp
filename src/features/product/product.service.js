@@ -93,7 +93,44 @@ class ProductService {
     async update(id, data) {
         const product = await Product.findByPk(id);
         if (!product) throw new Error('Product not found');
-        return await product.update(data);
+
+        const updated = await product.update(data);
+
+        // Propagation Logic: If this is a global product, update all matching products in other clients
+        try {
+            const globalClient = await Client.findOne({ where: { slug: 'global-catalog' } });
+            if (globalClient && product.clientId === globalClient.id) {
+                console.log(`[Global Propagation] Product "${product.name}" updated. Propagating to other clients...`);
+
+                // Fields to propagate (Standardized data)
+                const propagationData = {
+                    description: updated.description,
+                    nutrition: updated.nutrition,
+                    benefits: updated.benefits,
+                    tags: updated.tags,
+                    helpsWith: updated.helpsWith,
+                    emoji: updated.emoji,
+                    price: updated.price, // User mentioned editing global edits all
+                    category: updated.category
+                };
+
+                // Update all products with the same slug that ARE NOT in the global catalog
+                const [count] = await Product.update(propagationData, {
+                    where: {
+                        slug: updated.slug,
+                        clientId: { [Op.ne]: globalClient.id }
+                    }
+                });
+
+                if (count > 0) {
+                    console.log(`[Global Propagation] Updated ${count} products across clients.`);
+                }
+            }
+        } catch (err) {
+            console.error("[Global Propagation] Error propagating product update:", err.message);
+        }
+
+        return updated;
     }
 
     async delete(id) {
