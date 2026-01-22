@@ -15,8 +15,13 @@ db.Category = require('./Category')(sequelize);
 db.User = require('./User')(sequelize);
 db.ClientFile = require('./ClientFile')(sequelize);
 db.ProductInteraction = require('./ProductInteraction')(sequelize);
+db.Session = require('./Session')(sequelize);
 
 // Associations
+// User <-> Sessions
+db.User.hasMany(db.Session, { foreignKey: 'userId', as: 'sessions' });
+db.Session.belongsTo(db.User, { foreignKey: 'userId', as: 'user' });
+
 // Client <-> Products
 db.Client.hasMany(db.Product, { foreignKey: 'clientId', as: 'products' });
 db.Product.belongsTo(db.Client, { foreignKey: 'clientId', as: 'client' });

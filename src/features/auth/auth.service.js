@@ -40,7 +40,7 @@ class AuthService {
         };
     }
 
-    async verify2FA(tempToken, code) {
+    async verify2FA(tempToken, code, metadata = {}) {
         let decoded;
         try {
             decoded = jwt.verify(tempToken, process.env.JWT_SECRET || 'secret');
@@ -74,6 +74,17 @@ class AuthService {
             process.env.JWT_SECRET || 'secret',
             { expiresIn: '365d' }
         );
+
+        // Create Session record
+        const { Session } = require('../../models');
+        await Session.create({
+            userId: user.id,
+            token: token,
+            ip: metadata.ip || '0.0.0.0',
+            deviceName: metadata.deviceName || 'Navegador Desconhecido',
+            location: metadata.location || 'Localização Omitida',
+            lastSeen: new Date()
+        });
 
         return {
             user: { id: user.id, email: user.email, role: user.role },
