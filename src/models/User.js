@@ -24,6 +24,14 @@ module.exports = (sequelize) => {
             type: DataTypes.STRING,
             defaultValue: 'admin',
         },
+        twoFactorCode: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        twoFactorExpires: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
     }, {
         hooks: {
             beforeCreate: async (user) => {

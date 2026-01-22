@@ -1,30 +1,74 @@
 const { User } = require('../../models');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const emailService = require('../../services/email.service');
 
 class AuthService {
     async login(email, password) {
-        console.log(`[AUTH DEBUG] Attempting login for: ${email}`);
-
+        console.log(`[AUTH] Login step 1 for: ${email}`);
         const user = await User.findOne({ where: { email } });
 
-        if (!user) {
-            console.log(`[AUTH DEBUG] User not found: ${email}`);
+        if (!user || !(await bcrypt.compare(password, user.password))) {
             throw new Error('Usuário ou senha inválidos');
         }
 
-        console.log(`[AUTH DEBUG] User found. ID: ${user.id}, Role: ${user.role}`);
-        console.log(`[AUTH DEBUG] Stored Hash (start): ${user.password.substring(0, 10)}...`);
+        // Generate 5 digit code
+        const code = Math.floor(10000 + Math.random() * 90000).toString();
+        const expires = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
 
-        const isMatch = await bcrypt.compare(password, user.password);
+        // Save to DB
+        user.twoFactorCode = code;
+        user.twoFactorExpires = expires;
+        await user.save();
 
-        console.log(`[AUTH DEBUG] Password Match Result: ${isMatch}`);
+        // Send Email
+        // Hardcoded recipient as requested for Admin MVP, otherwise use user.email
+        const recipient = 'felipewendt.eng@gmail.com';
+        await emailService.send2FACode(recipient, code);
 
-        if (!isMatch) {
-            console.log(`[AUTH DEBUG] Password mismatch for ${email}`);
-            throw new Error('Usuário ou senha inválidos');
+        // Generate Temp Token (valid for 5 mins, only for 2FA verification)
+        const tempToken = jwt.sign(
+            { id: user.id, scope: '2fa_pending' },
+            process.env.JWT_SECRET || 'secret',
+            { expiresIn: '5m' }
+        );
+
+        return {
+            requires2FA: true,
+            tempToken,
+            message: `Código enviado para ${recipient}`
+        };
+    }
+
+    async verify2FA(tempToken, code) {
+        let decoded;
+        try {
+            decoded = jwt.verify(tempToken, process.env.JWT_SECRET || 'secret');
+        } catch (e) {
+            throw new Error('Token expirado ou inválido');
         }
 
+        if (decoded.scope !== '2fa_pending') {
+            throw new Error('Token inválido para verificação');
+        }
+
+        const user = await User.findByPk(decoded.id);
+        if (!user) throw new Error('Usuário não encontrado');
+
+        if (user.twoFactorCode !== code) {
+            throw new Error('Código incorreto');
+        }
+
+        if (new Date() > user.twoFactorExpires) {
+            throw new Error('Código expirado');
+        }
+
+        // Clear code
+        user.twoFactorCode = null;
+        user.twoFactorExpires = null;
+        await user.save();
+
+        // Generate Final Token
         const token = jwt.sign(
             { id: user.id, email: user.email, role: user.role },
             process.env.JWT_SECRET || 'secret',
