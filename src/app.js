@@ -123,6 +123,22 @@ runMigrations()
         } catch (error) {
             console.error('[DB] Error seeding admin user:', error);
         }
+
+        // Seed Global Catalog Client
+        try {
+            const globalClient = await db.Client.findOne({ where: { slug: 'global-catalog' } });
+            if (!globalClient) {
+                await db.Client.create({
+                    name: 'Catálogo Global',
+                    slug: 'global-catalog',
+                    description: 'Loja mestre para gerenciamento de produtos globais.',
+                    isActive: true
+                });
+                console.log('[DB] Global Catalog Client Created');
+            }
+        } catch (error) {
+            console.error('[DB] Error seeding global catalog:', error);
+        }
     }).catch(err => {
         console.error('[DB] CRITICAL DATABASE CONNECTION ERROR:', err);
         console.error('[DB] Verify your DB_HOST, DB_USER, DB_PASS environment variables.');
