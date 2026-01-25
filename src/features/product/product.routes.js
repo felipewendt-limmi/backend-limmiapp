@@ -11,6 +11,7 @@ router.post('/clients/:clientId/products', productController.create);
 router.post('/clients/:clientId/products/bulk-import', productController.bulkImport);
 // Product utilities
 router.get('/global-search', productController.globalSearch);
+router.get('/global-export', productController.globalExport);
 router.get('/categories', productController.getCategories);
 router.get('/categories/global', productController.getCategories); // Alias for Base LIMMI requirement
 

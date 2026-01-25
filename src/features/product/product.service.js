@@ -5,22 +5,40 @@ const sequelize = require('../../models').sequelize;
 
 class ProductService {
     async createProduct(clientId, data) {
+        let productData = { ...data };
         const slug = slugify(data.name, { lower: true, strict: true });
+
+        // Scenario B: Link to existing global product
+        if (data.parentProductId) {
+            const parent = await Product.findByPk(data.parentProductId);
+            if (parent) {
+                // Copy metadata from parent, but keep the current price and clientId
+                productData = {
+                    ...parent.toJSON(),
+                    id: undefined, // Let it generate a new UUID for the link
+                    clientId: clientId,
+                    price: data.price || parent.price,
+                    parentProductId: parent.id,
+                    createdAt: undefined,
+                    updatedAt: undefined
+                };
+            }
+        }
 
         // 1. Create the product for the specific client
         const product = await Product.create({
-            ...data,
+            ...productData,
             clientId,
             slug
         });
 
-        // 2. Sync to Global Catalog (if this isn't already the global catalog)
-        // We do this asynchronously/background to not block the main request if desired, 
-        // but for data integrity, let's await it or catch errors silently.
-        try {
-            await this.syncToGlobalCatalog(product);
-        } catch (err) {
-            console.error("Error syncing to global catalog:", err.message);
+        // 2. Sync to Global Catalog (only if it's a completely new product without a parent)
+        if (!data.parentProductId) {
+            try {
+                await this.syncToGlobalCatalog(product);
+            } catch (err) {
+                console.error("Error syncing to global catalog:", err.message);
+            }
         }
 
         return product;
@@ -102,7 +120,7 @@ class ProductService {
             if (globalClient && product.clientId === globalClient.id) {
                 console.log(`[Global Propagation] Product "${product.name}" updated. Propagating to other clients...`);
 
-                // Fields to propagate (Standardized data)
+                // Fields to propagate (Standardized metadata)
                 const propagationData = {
                     description: updated.description,
                     nutrition: updated.nutrition,
@@ -110,14 +128,20 @@ class ProductService {
                     tags: updated.tags,
                     helpsWith: updated.helpsWith,
                     emoji: updated.emoji,
-                    price: updated.price, // User mentioned editing global edits all
                     category: updated.category
+                    // NOTE: price is intentionally excluded to allow per-store pricing
                 };
 
-                // Update all products with the same slug that ARE NOT in the global catalog
+                // Update products by parentProductId (Precise) OR by slug (Legacy/Matches)
                 const [count] = await Product.update(propagationData, {
                     where: {
-                        slug: updated.slug,
+                        [Op.or]: [
+                            { parentProductId: updated.id },
+                            {
+                                slug: updated.slug,
+                                parentProductId: null // Only fallback to slug if not explicitly linked
+                            }
+                        ],
                         clientId: { [Op.ne]: globalClient.id }
                     }
                 });
@@ -194,6 +218,17 @@ class ProductService {
             }
         }
         return unique.slice(0, 50);
+    }
+
+    async getGlobalExportList() {
+        const globalClient = await Client.findOne({ where: { slug: 'global-catalog' } });
+        if (!globalClient) return [];
+
+        return await Product.findAll({
+            where: { clientId: globalClient.id },
+            attributes: ['id', 'name'],
+            order: [['name', 'ASC']]
+        });
     }
 
     async getAllCategories() {

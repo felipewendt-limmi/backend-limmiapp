@@ -85,6 +85,11 @@ module.exports = (sequelize) => {
         tips: {
             type: DataTypes.JSONB,
             defaultValue: [],
+        },
+        parentProductId: {
+            type: DataTypes.UUID,
+            allowNull: true,
+            comment: 'Reference to the original product in Global Catalog'
         }
     });
 

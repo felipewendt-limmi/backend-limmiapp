@@ -77,6 +77,7 @@ const runMigrations = async () => {
         'ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "views" INTEGER DEFAULT 0;',
         'ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "favoritesCount" INTEGER DEFAULT 0;',
         'ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "nutritionInteractions" INTEGER DEFAULT 0;',
+        'ALTER TABLE "Products" ADD COLUMN IF NOT EXISTS "parentProductId" UUID;',
     ];
 
     for (const sql of migrations) {

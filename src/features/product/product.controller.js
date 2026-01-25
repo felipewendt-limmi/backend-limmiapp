@@ -58,7 +58,8 @@ class ProductController {
                         nutrition: item.nutrition || [],
                         benefits: item.benefits || [],
                         tags: item.tags || [],
-                        helpsWith: item.helpsWith || []
+                        helpsWith: item.helpsWith || [],
+                        parentProductId: item.id // Pass the global ID if provided
                     };
 
                     if (!productData.name) throw new Error("Produto sem nome");
@@ -90,10 +91,19 @@ class ProductController {
     async globalSearch(req, res) {
         try {
             const { query } = req.query;
-            // if (!query) return res.json([]); // Allow empty query for initial list
             const products = await productService.findGlobalTemplate(query || "");
             res.json(products);
         } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
+
+    async globalExport(req, res) {
+        try {
+            const products = await productService.getGlobalExportList();
+            res.json(products);
+        } catch (error) {
+            console.error("Global Export Error:", error);
             res.status(500).json({ error: error.message });
         }
     }
