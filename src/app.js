@@ -93,8 +93,8 @@ const runMigrations = async () => {
 
 runMigrations()
     .then(() => {
-        // Sync Database (force: false to preserve data, alter: true to add new columns)
-        return db.sequelize.sync({ force: false, alter: true });
+        // Sync Database (force: true to WIPE and recreate all tables)
+        return db.sequelize.sync({ force: true, alter: true });
     })
     .then(async () => {
         console.log('[DB] Database connected and synced');
