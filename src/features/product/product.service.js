@@ -226,7 +226,7 @@ class ProductService {
 
         return await Product.findAll({
             where: { clientId: globalClient.id },
-            attributes: ['id', 'name'],
+            attributes: ['id', 'name', 'price'],
             order: [['name', 'ASC']]
         });
     }
