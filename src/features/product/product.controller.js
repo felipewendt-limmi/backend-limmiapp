@@ -52,7 +52,8 @@ class ProductController {
                     const productData = {
                         name: item.name,
                         description: item.description,
-                        price: item.price || "0,00",
+                        clientPrice: item.clientPrice || item.price || 0,
+                        marketPrice: item.marketPrice,
                         category: item.category || "Geral",
                         image: item.image,
                         nutrition: item.nutrition || [],

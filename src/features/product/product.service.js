@@ -8,43 +8,59 @@ class ProductService {
         let productData = { ...data };
         const slug = slugify(data.name, { lower: true, strict: true });
 
-        // Scenario B: Link to existing global product
-        if (data.parentProductId) {
+        // Check if product already exists for this client
+        const existingForClient = await Product.findOne({
+            where: { clientId, slug }
+        });
+
+        // Scenario B: Link to existing global product (if not already linked)
+        if (data.parentProductId && (!existingForClient || !existingForClient.parentProductId)) {
             const parent = await Product.findByPk(data.parentProductId);
             if (parent) {
-                // Copy metadata from parent, but keep the current price and clientId
+                const parentJson = parent.toJSON();
                 productData = {
-                    ...parent.toJSON(),
-                    id: undefined, // Let it generate a new UUID for the link
+                    ...parentJson,
+                    id: existingForClient ? existingForClient.id : undefined,
                     clientId: clientId,
-                    price: data.price || parent.price,
+                    price: data.clientPrice || data.price || (existingForClient ? existingForClient.price : parent.price),
                     parentProductId: parent.id,
-                    createdAt: undefined,
+                    createdAt: existingForClient ? existingForClient.createdAt : undefined,
                     updatedAt: undefined
                 };
             }
         }
 
-        // 1. Create the product for the specific client
-        const product = await Product.create({
-            ...productData,
-            clientId,
-            slug
-        });
+        let product;
+        if (existingForClient) {
+            // Update existing
+            product = await existingForClient.update({
+                ...productData,
+                slug, // Ensure slug stays consistent
+                price: data.clientPrice || data.price || existingForClient.price
+            });
+            console.log(`[Product Service] Updated existing product: ${product.name} (Slug: ${slug}) for Client: ${clientId}`);
+        } else {
+            // Create new
+            product = await Product.create({
+                ...productData,
+                clientId,
+                slug,
+                price: data.clientPrice || data.price || 0
+            });
+            console.log(`[Product Service] Created new product: ${product.name} (Slug: ${slug}) for Client: ${clientId}`);
+        }
 
-        // 2. Sync to Global Catalog (only if it's a completely new product without a parent)
-        if (!data.parentProductId) {
-            try {
-                await this.syncToGlobalCatalog(product);
-            } catch (err) {
-                console.error("Error syncing to global catalog:", err.message);
-            }
+        // 2. Sync to Global Catalog (Handle Market Price)
+        try {
+            await this.syncToGlobalCatalog(product, data.marketPrice);
+        } catch (err) {
+            console.error("Error syncing to global catalog:", err.message);
         }
 
         return product;
     }
 
-    async syncToGlobalCatalog(sourceProduct) {
+    async syncToGlobalCatalog(sourceProduct, marketPrice) {
         // 1. Get Global Catalog Client ID
         const [globalClient] = await Client.findOrCreate({
             where: { slug: 'global-catalog' },
@@ -55,13 +71,10 @@ class ProductService {
             }
         });
 
-        // Prevent infinite loop if we are creating FOR the global catalog
+        // Prevent infinite loop if we are creating FOR the global catalog directly
         if (sourceProduct.clientId === globalClient.id) return;
 
         // 2. Check if product already exists in Global Catalog (by slug or name)
-        // Global catalog should be the master source, so we only add if missing? 
-        // Or do we update? User said "whenever create... create for this store".
-        // Let's ensure it exists.
         const existing = await Product.findOne({
             where: {
                 clientId: globalClient.id,
@@ -69,11 +82,20 @@ class ProductService {
             }
         });
 
-        if (!existing) {
+        const globalPrice = marketPrice || sourceProduct.price;
+
+        if (existing) {
+            // Update global product with market price if provided
+            if (marketPrice) {
+                await existing.update({ price: marketPrice });
+                console.log(`[Global Sync] Updated ${sourceProduct.name} price to ${marketPrice} in Global Catalog`);
+            }
+        } else {
+            // Create new global entry
             await Product.create({
                 name: sourceProduct.name,
                 description: sourceProduct.description,
-                price: sourceProduct.price,
+                price: globalPrice,
                 category: sourceProduct.category,
                 image: sourceProduct.image,
                 nutrition: sourceProduct.nutrition,
@@ -85,7 +107,7 @@ class ProductService {
                 clientId: globalClient.id,
                 isActive: true
             });
-            console.log(`[Global Sync] Created ${sourceProduct.name} in Global Catalog`);
+            console.log(`[Global Sync] Created ${sourceProduct.name} in Global Catalog with price ${globalPrice}`);
         }
     }
 

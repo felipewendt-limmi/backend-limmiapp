@@ -16,6 +16,17 @@ async function reset() {
         });
         console.log('Global Catalog client recreated.');
 
+        // Create Default Admin User
+        const bcrypt = require('bcryptjs');
+        const hashedPassword = await bcrypt.hash('admin123', 10);
+        await db.User.create({
+            name: 'Administrador',
+            email: 'admin@admin.com',
+            password: hashedPassword,
+            role: 'admin'
+        });
+        console.log('Admin user recreated (admin@admin.com / admin123).');
+
     } catch (err) {
         console.error('Error resetting database:', err);
     } finally {
