@@ -151,8 +151,9 @@ class ProductService {
                     }
 
                     if (globalProduct) {
-                        await globalProduct.update({ price: data.marketPrice });
-                        console.log(`[Dual Edit] Updated Global Product Price to ${data.marketPrice} (Source: ${product.name})`);
+                        // Use this.update instead of globalProduct.update to trigger PROPAGATION to other clients
+                        await this.update(globalProduct.id, { price: data.marketPrice });
+                        console.log(`[Dual Edit] Updated Global Product Price and triggered propagation for ${data.marketPrice} (Source: ${product.name})`);
                     }
                 }
             } catch (err) {
