@@ -107,18 +107,18 @@ runMigrations()
             if (!adminUser) {
                 await db.User.create({
                     email: adminEmail,
-                    password: 'admin',
+                    password: 'admin123',
                     role: 'superadmin'
                 });
-                console.log('[DB] Default Admin User Created: admin@admin.com / admin');
+                console.log('[DB] Default Admin User Created: admin@admin.com / admin123');
             } else {
                 // Force update password MANUALLY
-                const hashedPassword = await bcrypt.hash('admin', 10);
+                const hashedPassword = await bcrypt.hash('admin123', 10);
                 await db.User.update(
                     { password: hashedPassword },
                     { where: { email: adminEmail } }
                 );
-                console.log('[DB] Admin user password MANUALLY reset to defaults: admin');
+                console.log('[DB] Admin user password MANUALLY reset to defaults: admin123');
             }
         } catch (error) {
             console.error('[DB] Error seeding admin user:', error);
