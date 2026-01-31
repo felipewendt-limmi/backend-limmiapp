@@ -154,8 +154,12 @@ class ProductService {
 
                     if (globalProduct) {
                         // Use this.update instead of globalProduct.update to trigger PROPAGATION to other clients
-                        await this.update(globalProduct.id, { price: data.marketPrice });
-                        console.log(`[Dual Edit] Updated Global Product Price and triggered propagation for ${data.marketPrice} (Source: ${product.name})`);
+                        // Pass both price and marketPrice to ensure consistency and correct propagation
+                        await this.update(globalProduct.id, {
+                            price: data.marketPrice,
+                            marketPrice: data.marketPrice
+                        });
+                        console.log(`[Dual Edit] Updated Global Product Price/MarketPrice and triggered propagation for ${data.marketPrice} (Source: ${product.name})`);
                     }
                 }
             } catch (err) {
