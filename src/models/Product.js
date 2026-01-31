@@ -31,6 +31,10 @@ module.exports = (sequelize) => {
             type: DataTypes.FLOAT,
             allowNull: true,
         },
+        marketPrice: {
+            type: DataTypes.FLOAT,
+            allowNull: true,
+        },
         unit: {
             type: DataTypes.STRING,
             defaultValue: 'un',

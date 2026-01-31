@@ -169,7 +169,7 @@ class ProductService {
             if (globalClient && product.clientId === globalClient.id) {
                 console.log(`[Global Propagation] Product "${product.name}" updated. Propagating to other clients...`);
 
-                // Fields to propagate (Standardized metadata)
+                // Fields to propagate (Standardized metadata + Global Market Price)
                 const propagationData = {
                     description: updated.description,
                     nutrition: updated.nutrition,
@@ -177,8 +177,8 @@ class ProductService {
                     tags: updated.tags,
                     helpsWith: updated.helpsWith,
                     emoji: updated.emoji,
-                    category: updated.category
-                    // NOTE: price is intentionally excluded to allow per-store pricing
+                    category: updated.category,
+                    marketPrice: updated.marketPrice // PROPAGATE MARKET PRICE
                 };
 
                 // Update products by parentProductId (Precise) OR by slug (Legacy/Matches)
