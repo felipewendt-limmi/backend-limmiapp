@@ -114,10 +114,12 @@ runMigrations()
                 console.log('[DB] Default Admin User Created: admin@admin.com / admin123');
             } else {
                 // Force update password MANUALLY
-                const hashedPassword = await bcrypt.hash('admin123', 10);
                 await db.User.update(
-                    { password: hashedPassword },
-                    { where: { email: adminEmail } }
+                    { password: 'admin123' },
+                    {
+                        where: { email: adminEmail },
+                        individualHooks: true // Run beforeUpdate hook
+                    }
                 );
                 console.log('[DB] Admin user password MANUALLY reset to defaults: admin123');
             }

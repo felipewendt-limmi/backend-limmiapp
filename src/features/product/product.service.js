@@ -36,7 +36,8 @@ class ProductService {
             product = await existingForClient.update({
                 ...productData,
                 slug, // Ensure slug stays consistent
-                price: data.clientPrice || data.price || existingForClient.price
+                price: data.clientPrice || data.price || existingForClient.price,
+                marketPrice: data.marketPrice || data.price || existingForClient.marketPrice
             });
             console.log(`[Product Service] Updated existing product: ${product.name} (Slug: ${slug}) for Client: ${clientId}`);
         } else {
@@ -233,6 +234,7 @@ class ProductService {
                 [sequelize.fn('DISTINCT', sequelize.col('name')), 'name'],
                 'description',
                 'price',
+                'marketPrice',
                 'category',
                 'image',
                 'nutrition',
@@ -281,7 +283,7 @@ class ProductService {
 
         return await Product.findAll({
             where: { clientId: globalClient.id },
-            attributes: ['id', 'name', 'price'],
+            attributes: ['id', 'name', 'price', 'marketPrice'],
             order: [['name', 'ASC']]
         });
     }
