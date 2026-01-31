@@ -134,6 +134,32 @@ class ProductService {
         const product = await Product.findByPk(id);
         if (!product) throw new Error('Product not found');
 
+        // Handle Market Price Update (Dual Editing)
+        if (data.marketPrice) {
+            try {
+                const globalClient = await Client.findOne({ where: { slug: 'global-catalog' } });
+                if (globalClient && product.clientId !== globalClient.id) {
+                    let globalProduct = null;
+
+                    if (product.parentProductId) {
+                        globalProduct = await Product.findOne({ where: { id: product.parentProductId, clientId: globalClient.id } });
+                    }
+
+                    if (!globalProduct) {
+                        // Fallback by slug
+                        globalProduct = await Product.findOne({ where: { slug: product.slug, clientId: globalClient.id } });
+                    }
+
+                    if (globalProduct) {
+                        await globalProduct.update({ price: data.marketPrice });
+                        console.log(`[Dual Edit] Updated Global Product Price to ${data.marketPrice} (Source: ${product.name})`);
+                    }
+                }
+            } catch (err) {
+                console.error("Error updating global market price:", err);
+            }
+        }
+
         const updated = await product.update(data);
 
         // Propagation Logic: If this is a global product, update all matching products in other clients
