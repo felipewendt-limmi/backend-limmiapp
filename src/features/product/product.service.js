@@ -45,7 +45,8 @@ class ProductService {
                 ...productData,
                 clientId,
                 slug,
-                price: data.clientPrice || data.price || 0
+                price: data.clientPrice || data.price || 0,
+                marketPrice: data.marketPrice || data.price || 0
             });
             console.log(`[Product Service] Created new product: ${product.name} (Slug: ${slug}) for Client: ${clientId}`);
         }
@@ -87,7 +88,7 @@ class ProductService {
         if (existing) {
             // Update global product with market price if provided
             if (marketPrice) {
-                await existing.update({ price: marketPrice });
+                await existing.update({ price: marketPrice, marketPrice: marketPrice });
                 console.log(`[Global Sync] Updated ${sourceProduct.name} price to ${marketPrice} in Global Catalog`);
             }
         } else {
@@ -96,6 +97,7 @@ class ProductService {
                 name: sourceProduct.name,
                 description: sourceProduct.description,
                 price: globalPrice,
+                marketPrice: globalPrice,
                 category: sourceProduct.category,
                 image: sourceProduct.image,
                 nutrition: sourceProduct.nutrition,
