@@ -14,6 +14,12 @@ class ProductController {
             // Auto-sync categories for single product creation
             try {
                 await categoryService.syncFromProducts(clientId);
+
+                // Also sync for Global Catalog
+                const globalClient = await clientService.findBySlug('global-catalog');
+                if (globalClient && clientId !== globalClient.id) {
+                    await categoryService.syncFromProducts(globalClient.id);
+                }
             } catch (syncErr) {
                 console.error("Auto-sync categories failed:", syncErr);
             }
@@ -78,6 +84,12 @@ class ProductController {
             // Auto-sync categories
             try {
                 await categoryService.syncFromProducts(clientId);
+
+                // Also sync for Global Catalog
+                const globalClient = await clientService.findBySlug('global-catalog');
+                if (globalClient && clientId !== globalClient.id) {
+                    await categoryService.syncFromProducts(globalClient.id);
+                }
             } catch (syncErr) {
                 console.error("Auto-sync categories failed:", syncErr);
             }
