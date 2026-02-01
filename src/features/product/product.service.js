@@ -21,7 +21,10 @@ class ProductService {
         });
 
         // Scenario B: Link to existing global product (if not already linked)
-        if (data.parentProductId && (!existingForClient || !existingForClient.parentProductId)) {
+        // Ensure parentProductId is a valid UUID before querying
+        const isValidParentId = data.parentProductId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(data.parentProductId);
+
+        if (isValidParentId && (!existingForClient || !existingForClient.parentProductId)) {
             const parent = await Product.findByPk(data.parentProductId);
             if (parent) {
                 const parentJson = parent.toJSON();

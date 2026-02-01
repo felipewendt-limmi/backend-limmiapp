@@ -66,7 +66,8 @@ class ProductController {
                         benefits: item.benefits || [],
                         tags: item.tags || [],
                         helpsWith: item.helpsWith || [],
-                        parentProductId: item.id // Pass the global ID if provided
+                        // Validate parentProductId (must be valid UUID)
+                        parentProductId: (item.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(item.id)) ? item.id : undefined
                     };
 
                     if (!productData.name) throw new Error("Produto sem nome");
