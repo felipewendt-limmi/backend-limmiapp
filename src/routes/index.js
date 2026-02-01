@@ -12,6 +12,7 @@ router.use('/auth', authRoutes);
 router.use('/stats', authenticateToken, require('../features/stats/stats.routes'));
 router.use('/files', authenticateToken, require('../features/file/file.routes')); // New File Routes
 router.use('/settings', require('../features/settings/settings.routes'));
+router.use('/system', require('../features/system/system.routes'));
 router.use('/', require('../features/category/category.routes')); // Category usually public for store but we should check internal routes later
 
 module.exports = router;
