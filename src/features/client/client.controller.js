@@ -38,6 +38,15 @@ class ClientController {
         }
     }
 
+    async deleteClient(req, res) {
+        try {
+            await clientService.delete(req.params.id);
+            res.status(204).send();
+        } catch (error) {
+            res.status(500).json({ error: error.message });
+        }
+    }
+
     async bulkImport(req, res) {
         try {
             const results = await clientService.bulkCreateWithProducts(req.body);

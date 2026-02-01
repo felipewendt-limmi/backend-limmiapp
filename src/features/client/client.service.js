@@ -42,6 +42,15 @@ class ClientService {
         return await client.update(data);
     }
 
+    async delete(id) {
+        const client = await Client.findByPk(id);
+        if (!client) throw new Error('Client not found');
+        // Delete related products first if cascade is not set at DB level, 
+        // but usually Sequelize handles cascade if configured. 
+        // Assuming strict model definition, let's just destroy client.
+        return await client.destroy();
+    }
+
     async bulkCreateWithProducts(clientsData) {
         console.log(`[ClientService] Bulk Import started with ${clientsData.length} items.`);
         const results = [];

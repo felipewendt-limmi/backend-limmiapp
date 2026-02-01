@@ -9,6 +9,7 @@ router.post('/bulk-import', clientController.bulkImport); // Bulk Import Clients
 router.get('/', clientController.getAll);
 router.get('/:slug', clientController.getBySlug);
 router.put('/:id', clientController.update);
+router.delete('/:id', clientController.deleteClient);
 router.post('/:id/visit', clientController.trackVisit); // Tracking
 
 // Product routes under clients (so path is /api/clients/:clientId/products/...)
