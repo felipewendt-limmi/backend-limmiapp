@@ -6,6 +6,13 @@ const sequelize = require('../../models').sequelize;
 class ProductService {
     async createProduct(clientId, data) {
         let productData = { ...data };
+
+        // Validate ID if present (Must be valid UUID)
+        if (productData.id && !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(productData.id)) {
+            console.warn(`[ProductService] Invalid UUID ignored: ${productData.id}. A new ID will be generated.`);
+            delete productData.id;
+        }
+
         const slug = slugify(data.name, { lower: true, strict: true });
 
         // Check if product already exists for this client

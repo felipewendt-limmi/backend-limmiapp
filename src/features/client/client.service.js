@@ -79,12 +79,18 @@ class ClientService {
                 if (data.products && Array.isArray(data.products) && data.products.length > 0) {
                     const Product = require('../../models').Product; // Lazy load to avoid circular deps if any
 
-                    const productsToCreate = data.products.map(p => ({
-                        ...p,
-                        clientId: client.id,
-                        slug: slugify(p.name, { lower: true, strict: true }),
-                        isActive: true
-                    }));
+                    const productsToCreate = data.products.map(p => {
+                        // Validate ID: if invalid UUID, set to undefined so DB generates new one
+                        const validId = p.id && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(p.id) ? p.id : undefined;
+
+                        return {
+                            ...p,
+                            id: validId,
+                            clientId: client.id,
+                            slug: slugify(p.name, { lower: true, strict: true }),
+                            isActive: true
+                        };
+                    });
 
                     const createdProducts = await Product.bulkCreate(productsToCreate);
                     console.log(`[ClientService] Created ${createdProducts.length} products for ${client.name}`);
