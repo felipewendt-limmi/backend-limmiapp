@@ -79,7 +79,7 @@ class SettingsController {
 
             if (email) user.email = email;
             if (password) {
-                user.password = await bcrypt.hash(password, 10);
+                user.password = password; // Hashing handled by User model hook
             }
 
             // Clear 2FA

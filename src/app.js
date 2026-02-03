@@ -94,8 +94,14 @@ const runMigrations = async () => {
 
 runMigrations()
     .then(() => {
-        // Sync Database (force: false to preserve data, alter: true to add new columns)
-        return db.sequelize.sync({ force: false, alter: true });
+        // Sync Database
+        // force: false to preserve data always
+        // alter: only true in non-production to avoid accidental schema lock/loss
+        const isProduction = process.env.NODE_ENV === 'production';
+        return db.sequelize.sync({
+            force: false,
+            alter: !isProduction
+        });
     })
     .then(async () => {
         console.log('[DB] Database connected and synced');
@@ -113,15 +119,7 @@ runMigrations()
                 });
                 console.log('[DB] Default Admin User Created: admin@admin.com / admin123');
             } else {
-                // Force update password MANUALLY
-                await db.User.update(
-                    { password: 'admin123' },
-                    {
-                        where: { email: adminEmail },
-                        individualHooks: true // Run beforeUpdate hook
-                    }
-                );
-                console.log('[DB] Admin user password MANUALLY reset to defaults: admin123');
+                console.log('[DB] Admin user already exists. Skipping password reset for production safety.');
             }
         } catch (error) {
             console.error('[DB] Error seeding admin user:', error);
